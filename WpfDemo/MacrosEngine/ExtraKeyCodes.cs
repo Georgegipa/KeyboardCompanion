@@ -1,9 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Windows.Documents;
 using InputSimulatorStandard.Native;
 
 namespace MacrosEngine.Codes
 {
+    struct MacroRegex
+    {
+        public const char MacroCommand = ',';
+        public const char Macro = '+';
+    }
     public static class ExtraKeyCodes
     {
         private static readonly Dictionary<string, VirtualKeyCode> keys = new Dictionary<string, VirtualKeyCode>
@@ -55,7 +61,7 @@ namespace MacrosEngine.Codes
 
         public static VirtualKeyCode FindKey(string key)
         {
-            return key.Contains(key) ? keys[key] : (VirtualKeyCode) 0;
+            return keys.ContainsKey(key) ? keys[key] : (VirtualKeyCode) 0;
         }
 
         public static VirtualKeyCode CharToVirtualKeyCode(char c)
@@ -86,6 +92,7 @@ namespace MacrosEngine.Codes
                     ',' => VirtualKeyCode.OEM_COMMA,
                     '.' => VirtualKeyCode.OEM_PERIOD,
                     '/' => VirtualKeyCode.OEM_2,
+                    _ => throw new ArgumentOutOfRangeException(nameof(c), c, null)
                 };
             }
             return (VirtualKeyCode) 0;

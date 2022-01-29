@@ -3,8 +3,10 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net5.0-windows</TargetFramework>
-    <Nullable>enable</Nullable>
+    <Nullable>disable</Nullable>
     <UseWPF>true</UseWPF>
+	<UseWindowsForms>true</UseWindowsForms>
+	<LangVersion>10</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -15,6 +17,9 @@
     <None Remove="assets\icons8-link.gif" />
     <None Remove="assets\icons8-red-circle-48.png" />
     <None Remove="assets\icons8-update-left-rotation-48.png" />
+    <None Update="assets\keypad.ico">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   <ItemGroup>

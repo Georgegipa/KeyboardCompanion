@@ -1,120 +1,125 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Drawing;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.Runtime.InteropServices;
-namespace WpfDemo
+using System.Windows.Forms;
+using DataFormats = System.Windows.Forms.DataFormats;
+using DragEventArgs = System.Windows.DragEventArgs;
+using MacrosEngine.Verifier;
+using Path = System.IO.Path;
+
+namespace KeyboardCompanionWpf
 {
+    
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window
     {
+        private NotifyIcon notifyIcon;
         [DllImport("kernel32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
-        static extern bool AllocConsole();
-        int i = 0;
+        public static extern bool AllocConsole();
+
         public MainWindow()
         {
             InitializeComponent();
             AllocConsole();
-            Console.WriteLine("hello world");
-        }
-        
-        private void DisconnectButton_Click(object sender, RoutedEventArgs e)
-        {
-            TextBoxes();
-
+            //this.WindowState = WindowState.Minimized;
+            //TrayIcon();
         }
 
-        private void CloseWindow()
+        private ContextMenuStrip Create()
         {
-            this.Close();
+            ContextMenuStrip menu = new ContextMenuStrip();
+            ToolStripMenuItem item;
+            //https://www.codeproject.com/Articles/290013/Formless-System-Tray-Application
+            item = new ToolStripMenuItem();
+            item.Text = "About";
+            menu.Items.Add(item);
+            
+            menu.Items.Add(new ToolStripSeparator());
+            var submenu = new ToolStripMenuItem();
+            submenu.Text = "Available ports";
+            item = new ToolStripMenuItem();
+            item.Text = "Demo Port";
+            submenu.DropDownItems.Add(item);
+            menu.Items.Add(submenu);
+            menu.Items.Add(new ToolStripSeparator());
+
+            // Exit.
+            item = new ToolStripMenuItem();
+            item.Text = "Exit";
+            item.Click += exitAction;
+            menu.Items.Add(item);
+            return menu;
         }
 
-        private void TextBoxes()
+        private void TrayIcon()
+        { 
+            notifyIcon = new NotifyIcon();
+            notifyIcon.Icon = System.Drawing.Icon.ExtractAssociatedIcon("assets/keypad.ico");
+            //new System.Drawing.Icon("assets/keypad2.ico");
+            notifyIcon.Visible = true;
+            notifyIcon.ContextMenuStrip = Create();
+        }
+
+        private void CloseAction()
         {
-            string text = "";
-            if (i == 0)
+            //notifyIcon.Dispose();
+            Environment.Exit(1);
+        }
+
+        private void exitAction(object? sender, EventArgs e)
+        {
+            CloseAction();
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            var w = new SerialPortWindow();     
+            w.Show();   
+        }
+
+        private void MAinWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+              CloseAction();
+        }
+
+        private void UIElement_OnDrop(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
             {
-                Console1TextBox.Clear();
-                Console2TextBox.Clear();
-                Console3TextBox.Clear();
+                string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+                //open only 1 file at a time
+                if (files.Length != 1)
+                {
+                    Console.WriteLine("Can't read more than 1 files at the same time!");
+                }
+                else
+                {
+                    if (files[0].EndsWith(".txt"))//open only txt files
+                    {
+                        Console.WriteLine("--Checking File:"+Path.GetFileName(files[0]));
+                        Verifier.VerifyFile(files[0],true);
+                        Console.WriteLine("--Check Completed!");
+                    }
+                    else 
+                        Console.WriteLine("File not Supported");
+                }
             }
-            i++;
+            else if (e.Data.GetDataPresent(DataFormats.Text))
+            {
+                Console.WriteLine("Text detected");
+                string[] content = (string[])e.Data.GetData(DataFormats.Text);
+                Console.WriteLine(content);
+                foreach (var line in content)
+                {
+                    Console.WriteLine(line);
+                }
+            }
 
-            if (i != 0)
-                text = "\n";
-            text += i + ".";
-            text += " Test";
-            Console1TextBox.AppendText(text);
-            Console1TextBox.ScrollToEnd();
-            Console2TextBox.AppendText(text);
-            Console2TextBox.ScrollToEnd();
-            Console3TextBox.AppendText(text);
-            Console3TextBox.ScrollToEnd();
-        }
-
-        private void DisconnectConnectionSubMenuItem_Click(object sender, RoutedEventArgs e)
-        {
-            Console2TextBox.AppendText("\nDisconnect");
-        }
-
-        private void RefreshConnectionSubMenuItem_Click(object sender, RoutedEventArgs e)
-        {
-            Console2TextBox.AppendText("\nRefresh");
-        }
-
-        private void ExitConnectionSubMenuItem_Click(object sender, RoutedEventArgs e)
-        {
-            CloseWindow();  
-        }
-
-        private void Console1AutocScrollChecked(object sender, RoutedEventArgs e)
-        {
-
-        }
-        private void Console2AutocScrollChecked(object sender, RoutedEventArgs e)
-        {
-
-        }
-        private void Console3AutocScrollChecked(object sender, RoutedEventArgs e)
-        {
-
-        }
-        private void Console1CopyClick(object sender, RoutedEventArgs e)
-        {
-
-        }
-        private void Console2CopyClick(object sender, RoutedEventArgs e)
-        {
-
-        }
-        private void Console3CopyClick(object sender, RoutedEventArgs e)
-        {
-
-        }
-        private void Console1ClearClick(object sender, RoutedEventArgs e)
-        {
-
-        }
-        private void Console2ClearClick(object sender, RoutedEventArgs e)
-        {
-
-        }
-        private void Console3ClearClick(object sender, RoutedEventArgs e)
-        {
-
+            throw new NotImplementedException();
         }
     }
 }

@@ -9,10 +9,8 @@ namespace MacrosEngine
 {
     public class Engine
     {
-        private const char MacroCommandRegex = ',';
-        private const char MacroRegex = '+';
         private InputSimulator MK;
-        private List<VirtualKeyCode> _keysPressed = new List<VirtualKeyCode>();
+        private List<VirtualKeyCode> _keysPressed = new();
         private int SelectedProfile { get; set; } //currently, selected profile
         public int ProfileCount { get; private set; } //number of profiles
         public int ButtonCount { get; private set; }
@@ -73,7 +71,7 @@ namespace MacrosEngine
 
         private void ExecuteMacro(string macro)
         {
-            string[] keys = macro.Split(MacroRegex);
+            string[] keys = macro.Split(MacroRegex.Macro);
             foreach (var key in keys)
             {
                 Press(ExtraKeyCodes.StringToKey(key));
@@ -97,7 +95,7 @@ namespace MacrosEngine
             {
                 string macro = defaultBindings[FindMacroID(SelectedProfile,buttonId)];
                 char[] macroCommand = macro[..2].ToCharArray();//same as Substring(0,2)
-                if(macroCommand[1]==MacroCommandRegex)
+                if(macroCommand[1]==MacroRegex.MacroCommand)
                 {
                     macro = macro[2..];//macro start from position 2 of String (same as Substring(2))
                     switch (macroCommand[0]){
