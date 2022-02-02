@@ -2,11 +2,12 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net5.0-windows</TargetFramework>
+    <TargetFramework>net6.0-windows</TargetFramework>
     <Nullable>disable</Nullable>
     <UseWPF>true</UseWPF>
 	<UseWindowsForms>true</UseWindowsForms>
 	<LangVersion>10</LangVersion>
+	<ApplicationIcon>assets\keypad.Icon.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
@@ -17,7 +18,12 @@
     <None Remove="assets\icons8-link.gif" />
     <None Remove="assets\icons8-red-circle-48.png" />
     <None Remove="assets\icons8-update-left-rotation-48.png" />
-    <None Update="assets\keypad.ico">
+    <None Remove="assets\keypad3.ico" />
+    <None Remove="assets\icon.ico" />
+    <None Update="assets\keypad_16.ico">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="assets\keypad.Icon.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
@@ -35,15 +41,17 @@
     <Resource Include="assets\icons8-green-circle-48.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
-    <Resource Include="assets\icons8-link.gif">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Resource>
     <Resource Include="assets\icons8-red-circle-48.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
     <Resource Include="assets\icons8-update-left-rotation-48.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
+    <None Remove="assets\icons8-error-96.png" />
+    <Resource Include="assets\icons8-error-96.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <None Remove="assets\keypad.ico" />
   </ItemGroup>
 
   <ItemGroup>

@@ -7,6 +7,26 @@
 
     public static class Verifier
     {
+        public enum MacroErrors
+        {
+            CHAR_NOT_ACCEPTED,
+            MODIFIER_KEY_NOT_FOUND,
+            MACROCOMMAND_NOT_FOUND,
+            MACRO_MISFORMED,
+            //Warnings:
+            LOW_LETTER,
+            SECONDARY_KEY,
+            STARTING_WITH_DELIMETER,
+            ENDING_WITH_DELIMETER
+        }
+
+        public struct ErrorStruct
+        {
+            public int ErrorNum = 0;
+            public int WarningNum = 0;
+            public Dictionary<int, List<MacroErrors>> Lines;
+        }
+        
         enum MacroCommandType
         {
             MACRO_NOT_FOUND = 0,
@@ -21,19 +41,6 @@
             LOW_LETTER,
             SECONDARY_KEY,
             CHAR_ACCEPTED
-        }
-
-        public enum MacroErrors
-        {
-            CHAR_NOT_ACCEPTED,
-            MODIFIER_KEY_NOT_FOUND,
-            MACROCOMMAND_NOT_FOUND,
-            MACRO_MISFORMED,
-            //Warnings:
-            LOW_LETTER,
-            SECONDARY_KEY,
-            STARTING_WITH_DELIMETER,
-            ENDING_WITH_DELIMETER
         }
 
         private static MacroCommandType MacroType(string line)
@@ -88,7 +95,7 @@
             };
         }
 
-        public static List<MacroErrors> CheckMacro(string line)
+        public static List<MacroErrors> VerifyLine(string line)
         {
             List<MacroErrors> errors = new();
             if (line.StartsWith(MacroRegex.Macro))
@@ -144,15 +151,15 @@
 
             return errors;
         }
-
-        public static Dictionary<int, List<MacroErrors>> VerifyFile(string path, bool Verbose = false)
+        
+        public static ErrorStruct VerifyText(string[] content, bool Verbose = false)
         {
             Dictionary<int, List<MacroErrors>> errors = new();
-            string[] macros = File.ReadAllLines(path);
+            ErrorStruct Problems = new();
             int line = 0;
-            foreach (var macro in macros)
+            foreach (var macro in content)
             {
-                List<MacroErrors> err = CheckMacro(macro);
+                List<MacroErrors> err = VerifyLine(macro);
                 if (Verbose)
                 {
                     Console.Write((line+1)+"." + macro);
@@ -166,10 +173,27 @@
                     else Console.WriteLine("-Correct");
                 }
 
+                if (err.Count != 0)
+                {
+                    foreach (var e in err)
+                    {
+                        if (e <= MacroErrors.LOW_LETTER)
+                            Problems.ErrorNum++;
+                        else
+                            Problems.WarningNum++;
+                    }
+                }
                 errors.Add(line, err);
                 line++;
             }
-            return errors;
+
+            Problems.Lines = errors;
+            return Problems;
+        }
+
+        public static ErrorStruct VerifyFile(string path, bool Verbose = false)
+        {
+            return VerifyText(File.ReadAllLines(path), Verbose);
         }
     }
 }

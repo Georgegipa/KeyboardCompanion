@@ -7,7 +7,7 @@ using DataFormats = System.Windows.Forms.DataFormats;
 using DragEventArgs = System.Windows.DragEventArgs;
 using MacrosEngine.Verifier;
 using Path = System.IO.Path;
-
+using MacrosEngine.UKP;
 namespace KeyboardCompanionWpf
 {
     
@@ -16,25 +16,24 @@ namespace KeyboardCompanionWpf
     /// </summary>
     public partial class MainWindow : Window
     {
-        private NotifyIcon notifyIcon;
+        private NotifyIcon _notifyIcon;
         [DllImport("kernel32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
-        public static extern bool AllocConsole();
+        static extern bool AllocConsole();
 
         public MainWindow()
         {
             InitializeComponent();
             AllocConsole();
             //this.WindowState = WindowState.Minimized;
-            //TrayIcon();
+            TrayIcon();
         }
 
         private ContextMenuStrip Create()
         {
             ContextMenuStrip menu = new ContextMenuStrip();
-            ToolStripMenuItem item;
             //https://www.codeproject.com/Articles/290013/Formless-System-Tray-Application
-            item = new ToolStripMenuItem();
+            var item = new ToolStripMenuItem();
             item.Text = "About";
             menu.Items.Add(item);
             
@@ -50,27 +49,26 @@ namespace KeyboardCompanionWpf
             // Exit.
             item = new ToolStripMenuItem();
             item.Text = "Exit";
-            item.Click += exitAction;
+            item.Click += ExitAction;
             menu.Items.Add(item);
             return menu;
         }
 
         private void TrayIcon()
         { 
-            notifyIcon = new NotifyIcon();
-            notifyIcon.Icon = System.Drawing.Icon.ExtractAssociatedIcon("assets/keypad.ico");
-            //new System.Drawing.Icon("assets/keypad2.ico");
-            notifyIcon.Visible = true;
-            notifyIcon.ContextMenuStrip = Create();
+            _notifyIcon = new NotifyIcon();
+            _notifyIcon.Icon = new Icon("assets/keypad_16.ico");//icon must have always copy and build action set to none
+            _notifyIcon.Visible = true;
+            _notifyIcon.ContextMenuStrip = Create();
         }
 
         private void CloseAction()
         {
-            //notifyIcon.Dispose();
+            _notifyIcon.Dispose();
             Environment.Exit(1);
         }
 
-        private void exitAction(object? sender, EventArgs e)
+        private void ExitAction(object? sender, EventArgs e)
         {
             CloseAction();
         }
@@ -81,41 +79,56 @@ namespace KeyboardCompanionWpf
             w.Show();   
         }
 
+        private void TestPopupClick(object sender, RoutedEventArgs e)
+        {
+            var win = new PopUp(); 
+            win.Show();   
+        }
+        
+        private void TestFileClick(object sender, RoutedEventArgs e)
+        {
+            
+        }
+        
         private void MAinWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
               CloseAction();
         }
 
-        private void UIElement_OnDrop(object sender, DragEventArgs e)
+        private void FileOnDrop(object sender, DragEventArgs e)
         {
             if (e.Data.GetDataPresent(DataFormats.FileDrop))
             {
-                string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
-                //open only 1 file at a time
-                if (files.Length != 1)
+                //check all dropped files
+                foreach (var f in ((string[])e.Data.GetData(DataFormats.FileDrop))!)
                 {
-                    Console.WriteLine("Can't read more than 1 files at the same time!");
-                }
-                else
-                {
-                    if (files[0].EndsWith(".txt"))//open only txt files
+                    if (f.EndsWith(".txt"))//open only txt files
                     {
-                        Console.WriteLine("--Checking File:"+Path.GetFileName(files[0]));
-                        Verifier.VerifyFile(files[0],true);
-                        Console.WriteLine("--Check Completed!");
+                        Console.WriteLine("--Checking File:"+Path.GetFileName(f));
+                        var er= Verifier.VerifyFile(f,true);
+                        Console.WriteLine("--Check Completed!\nErrors:" + er.ErrorNum + "\nWarnings:" + er.WarningNum);
+                        // if (er.ErrorNum == 0 && er.WarningNum == 0)
+                        // {
+                        //     UKP.GenerateDefaultMacros(ReadAll);
+                        // }
                     }
-                    else 
-                        Console.WriteLine("File not Supported");
+                    else
+                    {
+                         Console.WriteLine(Path.GetFileName(f)+" filetype not Supported");
+                    }
                 }
             }
             else if (e.Data.GetDataPresent(DataFormats.Text))
             {
                 Console.WriteLine("Text detected");
-                string[] content = (string[])e.Data.GetData(DataFormats.Text);
-                Console.WriteLine(content);
-                foreach (var line in content)
+                string content = (string)e.Data.GetData(DataFormats.Text);
+                string[] lines = content!.Split(Environment.NewLine);
+                Console.WriteLine("--Checking Dropped Text");
+                var er= Verifier.VerifyText(lines,true);
+                Console.WriteLine("--Check Completed!\nErrors:"+er.ErrorNum+"\nWarnings:"+er.WarningNum);
+                if (er.ErrorNum == 0 && er.WarningNum == 0)
                 {
-                    Console.WriteLine(line);
+                    UKP.GenerateDefaultMacros(lines);
                 }
             }
 

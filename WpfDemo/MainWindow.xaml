@@ -3,19 +3,18 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:WpfDemo"
         mc:Ignorable="d"
         Title="KeyboardCompanion-BoardName-Protocol-PVersion"
         Height="650" Width="900"
         MinHeight="610" MinWidth="400"
         FontFamily="Arial" FontSize="15" Closing="MAinWindow_Closing">
-    <Grid>
+    <Grid Background="DarkSlateGray" AllowDrop="True" Drop="FileOnDrop">
         <Grid.RowDefinitions>
-            <RowDefinition Height="10"/> <!-- border-->
+            <RowDefinition Height="5"/> <!-- border-->
             <RowDefinition Height=".25*"/> <!-- info row-->
-            <RowDefinition Height="10"/> <!-- border-->
-            <RowDefinition Height="*"/> <!-- info row-->
-            <RowDefinition Height="10"/> <!-- border-->
+            <RowDefinition Height="5"/> <!-- border-->
+            <RowDefinition Height=".05*"/> <!-- info row-->
+            <RowDefinition Height="5"/> <!-- border-->
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="10"/>
@@ -25,8 +24,23 @@
         <Button Grid.Row="1" Grid.Column="1" FontSize="50" Click="Button_Click">
             Click me
         </Button>
-        <StackPanel Grid.Row="3" Grid.Column="1" Background="LightBlue" AllowDrop="True" Drop="UIElement_OnDrop">
-            
-        </StackPanel>
+        <Grid Grid.Row="3" Grid.Column="1"  Background="DarkSlateGray" AllowDrop="True" Drop="FileOnDrop">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="0"/> <!-- border-->
+                <RowDefinition Height=".25*"/> <!-- info row-->
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="0"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Button Grid.Row="1" Grid.Column="1" FontSize="20" Click="TestPopupClick">
+                Test Popup
+            </Button>
+            <Button Grid.Row="1" Grid.Column="2" FontSize="20" Click="TestFileClick">
+                Test File Creation
+            </Button>
+        </Grid>
     </Grid>
 </Window>
